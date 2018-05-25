@@ -18,7 +18,7 @@
                                 </p> -->
 
                     </div>
-                    <div class="supports_num" v-if="seller.supports">
+                    <div class="supports_num" v-if="seller.supports" @click="showall">
                         <span class="num">{{seller.supports.length}}</span>
                         <span class="icon icon-keyboard_arrow_right"></span>
                       
@@ -26,7 +26,7 @@
             </div>
             
         </div>
-        <div class="bulletin">
+        <div class="bulletin"  @click="showall">
                   <div class="bulletinlabel"></div>
                   <span class="text">{{seller.bulletin}} </span>
                   <span class="icon icon-keyboard_arrow_right"></span>
@@ -56,6 +56,11 @@ export default {
         "decrease","discount","special","invoice","guarantee"
 
     ];
+  },
+  methods:{
+    showall(){
+       this.$emit('isshow');//触发父组件的isshow事件
+    }
   }
 };
 </script>

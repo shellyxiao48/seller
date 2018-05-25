@@ -27,7 +27,7 @@
                     {{item.name}}
                 </div>
                 <div class="food_item_list" v-for="(value,key) in item.foods" :key="key">
-                    <div class="food_item_inner">
+                <div class="food_item_inner">
                     <div class="image">
                          <img :src="value.image">
                     </div>
@@ -45,9 +45,12 @@
                             <span>￥{{value.price}}</span>
                             <span v-if="value.oldPrice">￥{{value.oldPrice}}</span>
                         </div>
-                        <food-cal ></food-cal>
+                        <div class="cart-control-wrapper">
+                          <cart-control :food=value></cart-control>
+                        </div>
                     </div>
                     </div>
+                    
                     
 
                 </div>
@@ -56,105 +59,118 @@
                 </div>
          
         </div>
-        <my-cart :minPrice="seller.minPrice"  :deliveryPrice="seller.deliveryPrice"></my-cart>
+        <my-cart :minPrice="seller.minPrice"  :deliveryPrice="seller.deliveryPrice" :selectfood=selectFoods  ></my-cart>
 
     </div>
    
 </template>
 <script>
 import axios from "axios";
-import vue from "vue"
-import BScroll from "better-scroll"
-import myCart from '../components/cart'
-
-import foodCal from '../components/foodcalculate'
+import vue from "vue";
+import BScroll from "better-scroll";
+import myCart from "../components/cart";
+import cartControl from "../components/cartcontrol";
 
 export default {
   name: "goods",
-  props:{
-    seller:{
-      type:Object
+  props: {
+    seller: {
+      type: Object
     }
   },
-  components:{
-    "foodCal":foodCal,
-    "myCart":myCart
-
-
+  components: {
+    cartControl: cartControl,
+    myCart: myCart
   },
   data() {
     return {
       goods: [],
-      menuScroll:null,
-      foodScroll:null,
-      heightList:[],
+      menuScroll: null,
+      foodScroll: null,
+      heightList: [],
       classMap: ["decrease", "discount", "special", "invoice", "guarantee"],
-      scrollY:0
+      scrollY: 0
     };
   },
   created() {
+    // console.log(this.$store.state.goods);
     axios.get("sell/goods").then(res => {
       if (res.data.code === 0) {
         this.goods = res.data.data;
+        // this.$store.commit("setgoods",res.data.data);
         console.log(this.goods);
-        vue.nextTick(()=>{
-            // DOM挂载和渲染都已完成
-            this._initscroll();
-            this._caculateHeight();
-
-
+        vue.nextTick(() => {
+          // DOM挂载和渲染都已完成
+          this._initscroll();
+          this._caculateHeight();
         });
       }
     });
   },
-  methods:{
-    selectIndex(index,event){
-        if(!event._constructed){
-            // 忽略scroll事件
-            return 
-        }
-        let foodList=this.$refs.foodswrapper.getElementsByClassName("food_item");
-        this.foodScroll.scrollToElement(foodList[index],300);
-    },
-    _initscroll(){
-      this.menuScroll = new BScroll(this.$refs.menulist,{
-          click:true
-      });
-      this.foodScroll = new BScroll(this.$refs.foodswrapper,{
-          probeType:3,
-          click:true
-      });
-      this.foodScroll.on("scroll",(pos)=>{
-          this.scrollY=Math.abs(Math.round(pos.y));
-      })
-    },
-    _caculateHeight(){
-        let foodList=this.$refs.foodswrapper.getElementsByClassName("food_item")
-        let height=0;
-        this.heightList.push(height);
-        for(let i=0;i<foodList.length;i++){
-            let item =foodList[i];
-            height+=item.clientHeight;
-            this.heightList.push(height);
-        }
-            console.log(this.heightList)
-        
-   }
-  },
-  computed:{
-      calHeight(){
-        // console.log(this.scrollY)
-        for(let i=0;i<this.heightList.length;i++){
-          let height1=this.heightList[i];
-          let height2=this.heightList[i+1];
-          if(!height2||(this.scrollY>=height1)&&this.scrollY<height2){
-            return i;
-          }
-        }
-          return 0;
-        
-
+  methods: {
+    selectIndex(index, event) {
+      if (!event._constructed) {
+        // 忽略scroll事件
+        return;
       }
+      let foodList = this.$refs.foodswrapper.getElementsByClassName(
+        "food_item"
+      );
+      this.foodScroll.scrollToElement(foodList[index], 300);
+    },
+
+    _initscroll() {
+      this.menuScroll = new BScroll(this.$refs.menulist, {
+        click: true
+      });
+      this.foodScroll = new BScroll(this.$refs.foodswrapper, {
+        probeType: 3, //结合BScroll的接口使用,3实时派发scroll事件，探针的作用
+        click: true
+      });
+      this.foodScroll.on("scroll", pos => {
+        this.scrollY = Math.abs(Math.round(pos.y));
+      });
+    },
+    _caculateHeight() {
+      let foodList = this.$refs.foodswrapper.getElementsByClassName(
+        "food_item"
+      );
+      let height = 0;
+      this.heightList.push(height);
+      for (let i = 0; i < foodList.length; i++) {
+        let item = foodList[i];
+        height += item.clientHeight;
+        this.heightList.push(height);
+      }
+      console.log(this.heightList);
+    }
+  },
+  computed: {
+    calHeight() {
+      // console.log(this.scrollY)
+      for (let i = 0; i < this.heightList.length; i++) {
+        let height1 = this.heightList[i];
+        let height2 = this.heightList[i + 1];
+        if (!height2 || (this.scrollY >= height1 && this.scrollY < height2)) {
+          return i;
+        }
+      }
+      return 0;
+    },
+    selectFoods() {
+      let foods = [];
+      console.log(this.goods);
+      if (this.goods.length !== 0) {
+        this.goods.forEach(ele => {
+          ele.foods.forEach(food => {
+            if (food.count) {
+              foods.push(food);
+            }
+          });
+        });
+      }
+      return foods;
+    }
   }
 };
 </script>
@@ -162,7 +178,7 @@ export default {
 .goods {
   display: flex;
   position: absolute;
-  top:180px;
+  top: 180px;
   bottom: 48px;
   left: 0;
   right: 0;
@@ -186,11 +202,10 @@ export default {
         border-bottom: 1px solid rgba(7, 17, 27, 0.1);
         height: 54px;
       }
-       &.current {
-      background: #fff;
+      &.current {
+        background: #fff;
+      }
     }
-    }
-   
   }
   .foodswrapper {
     flex: 1;
@@ -206,19 +221,19 @@ export default {
       }
       .food_item_list {
         padding: 0 18px;
+        position: relative;
         .food_item_inner {
-            border-bottom: 1px solid rgba(7, 17, 27, 0.1);
-            padding: 18px 0;
-        display: flex;            
+          border-bottom: 1px solid rgba(7, 17, 27, 0.1);
+          padding: 18px 0;
+          display: flex;
           .image {
             width: 60px;
             flex: 0 0 60px;
             height: 60px;
             img {
-                    width: 100%;
-                    height: 100%;
-                    background-size: cover;
-
+              width: 100%;
+              height: 100%;
+              background-size: cover;
             }
           }
           .textcontent {
@@ -248,7 +263,6 @@ export default {
             }
             .price {
               margin-top: 8px;
-                
               span:nth-of-type(1) {
                 font-size: 14px;
                 color: rgb(240, 20, 20);
@@ -263,6 +277,11 @@ export default {
                 color: rgb(147, 153, 159);
                 text-decoration: line-through;
               }
+            }
+            .cart-control-wrapper {
+              position: absolute;
+              right: 18px;
+              bottom: 18px;
             }
           }
         }
