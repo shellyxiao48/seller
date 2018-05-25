@@ -1,8 +1,8 @@
 <template>
     <div class="calwrapper">
-        <span class="icon-remove_circle_outline" @click="remove($event)" v-show="food.count>0"></span>
+        <span class="icon-remove_circle_outline" @click.stop="remove($event)" v-show="food.count>0"></span>
         <span class="num" v-show="food.count>0">{{food.count}}</span>
-        <span class="icon-add_circle" @click="add($event)"></span>
+        <span class="icon-add_circle" @click.stop="add($event)"></span>
     </div>
 </template>
 <script>

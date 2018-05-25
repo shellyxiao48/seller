@@ -1,12 +1,11 @@
 <template>
-    <div class="shop_wrapper">
+    <div class="shop_wrapper" ref="shopwrapper">
+      <div>
     <div class="shopmsg">
         <div class="msg">
             <div class="msgheader">
                 <div class="name">{{seller.name}}</div>
-                
             </div>
-
             <div class="sellmsg">
                  <my-star :scores=seller.foodScore></my-star>
                 <div class="ratingCount">({{seller.ratingCount}})</div>
@@ -66,7 +65,7 @@
         <div class="msglist" v-for="(item,index) in seller.infos" :key="index">
             {{item}}
         </div>
-        
+        </div>
     </div>     
     </div>
 </template>
@@ -81,6 +80,7 @@ export default {
     return {
       like: false,
       picScroll: null,
+      shopscroll:null,
       logoclass: ["decrease", "discount", "special", "invoice", "guarantee"]
     };
   },
@@ -93,13 +93,14 @@ export default {
     myStar
   },
   created() {
+    
     Vue.nextTick(() => {
+       this.shopscroll = new BScroll(this.$refs.shopwrapper, {
+        click: true
+      });
      var _this = this;
       let width = _this.seller.pics.length * 132;
       _this.$refs.slideritem.style.width = width + "px";
-      Vue.nextTick(() => {
-      console.log(this.seller);
-          
         if (!_this.picScroll) {
           _this.scroll = new BScroll(_this.$refs.picScroll, {
             startX: 0,
@@ -111,7 +112,6 @@ export default {
         } else {
           _this.picScroll.refresh();
         }
-      });
     });
   }
 };
@@ -121,6 +121,12 @@ $grey7: rgba(147, 153, 159, 0.2);
 
 .shop_wrapper {
   border-top: 1px solid #ccc;
+   position: absolute;
+    top:180px;
+    right:0;
+    left:0;
+    bottom:0;
+  overflow: hidden;
   .shopmsg {
     position: relative;
 

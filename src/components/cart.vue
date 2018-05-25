@@ -97,6 +97,7 @@ export default {
 <style lang="scss">
 .cartfooter {
   position: fixed;
+  z-index: 98;
   bottom: 0;
   right: 0;
   left: 0;

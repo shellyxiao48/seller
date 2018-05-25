@@ -1,5 +1,6 @@
 <template>
-    <div class="ratings_wrapper">
+    <div class="ratings_wrapper" ref="ratingdetail">
+      <div>
         <div class="totalpart">
             <div class="totalratings">
                 <div class="num">{{seller.score}}</div>
@@ -68,12 +69,14 @@
                 </div>
             </div>
         </div>
-
+</div>
     </div>
 </template>
 <script>
 import axios from "axios";
 import myStar from "../components/star_control";
+import BScroll from "better-scroll";
+import Vue from "vue";
 
 export default {
   name: "ratings",
@@ -87,7 +90,8 @@ export default {
         all: "",
         good: "",
         bad: ""
-      }
+      },
+      ratingscroll:null
     };
   },
   props: {
@@ -100,11 +104,9 @@ export default {
   },
   computed: {
     showratings() {
-        console.log(1111)
       let arr = [];
       let _this = this;
         if (_this.type == 2) {
-          // all
           if (_this.active) {
             _this.ratings.forEach(function(ele) {
               if (ele.text != "") {
@@ -143,6 +145,11 @@ export default {
   },
 
   created() {
+    Vue.nextTick(() => {
+      this.ratingscroll = new BScroll(this.$refs.ratingdetail, {
+        click: true
+      });
+    });
     axios.get("sell/ratings").then(res => {
       if (res.data.code === 0) {
         this.ratings = res.data.data;
@@ -156,6 +163,12 @@ $orange: rgb(255, 153, 0);
 $black7: rgb(7, 17, 27);
 $grey7: rgb(147, 153, 159);
 .ratings_wrapper {
+    position: absolute;
+    top:180px;
+    right:0;
+    left:0;
+    bottom:0;
+  overflow: hidden;
   .totalpart {
     display: flex;
     padding: 18px 24px;
@@ -207,7 +220,7 @@ $grey7: rgb(147, 153, 159);
   .bg {
     background: #f3f5f7;
     width: 100%;
-    height: 40px;
+    height: 16px;
     border-top: 1px solid $grey7;
     border-bottom: 1px solid $grey7;
   }

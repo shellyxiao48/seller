@@ -2,7 +2,7 @@
     <div class="goods">
         <!-- $refs -->
         <div class="menulist" ref="menulist">
- <ul >
+          <ul >
             <li v-for="(item,index) in goods" :key="index" @click="selectIndex(index,$event)" :class="{current:calHeight===index}">
                 <div class="menuitem">
                  <span v-if="item.type>0" class="logoicon " :class="classMap[item.type]">
@@ -12,14 +12,9 @@
                       {{item.name}}
                 </span>
                 </div>
-               
-                
-              
             </li>
         </ul>
         </div>
-       
-       
         <div class="foodswrapper" ref="foodswrapper">
             <div>
                    <div class="food_item" v-for="(item,index) in goods" :key="index">
@@ -27,7 +22,7 @@
                     {{item.name}}
                 </div>
                 <div class="food_item_list" v-for="(value,key) in item.foods" :key="key">
-                <div class="food_item_inner">
+                <div class="food_item_inner" @click="showfood(value)" >
                     <div class="image">
                          <img :src="value.image">
                     </div>
@@ -60,7 +55,7 @@
          
         </div>
         <my-cart :minPrice="seller.minPrice"  :deliveryPrice="seller.deliveryPrice" :selectfood=selectFoods  ></my-cart>
-
+        <foodshow :food="selectitem" v-if="fshow" @hidefood="hidefood"></foodshow>
     </div>
    
 </template>
@@ -70,7 +65,7 @@ import vue from "vue";
 import BScroll from "better-scroll";
 import myCart from "../components/cart";
 import cartControl from "../components/cartcontrol";
-
+import foodshow from "../components/foodshow"
 export default {
   name: "goods",
   props: {
@@ -80,14 +75,17 @@ export default {
   },
   components: {
     cartControl: cartControl,
-    myCart: myCart
+    myCart: myCart,
+    foodshow
   },
   data() {
     return {
       goods: [],
       menuScroll: null,
       foodScroll: null,
+      selectitem:{},
       heightList: [],
+      fshow:false,
       classMap: ["decrease", "discount", "special", "invoice", "guarantee"],
       scrollY: 0
     };
@@ -143,6 +141,15 @@ export default {
         this.heightList.push(height);
       }
       console.log(this.heightList);
+    },
+    showfood(food){
+      this.selectitem=food; 
+      this.fshow=true;     
+    },
+    hidefood(type){
+      this.fshow=false;     
+      console.log(111)
+      console.log(type)
     }
   },
   computed: {
